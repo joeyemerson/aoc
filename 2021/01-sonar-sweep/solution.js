@@ -4,9 +4,8 @@ const input = fs
   .readFileSync(__dirname + '/input')
   .toString()
   .split('\n')
+  .filter(el => el !== '')
   .map(Number);
-
-input.pop(); // remove blank line at end of input file
 
 const countIncreases = arr => {
   return arr.reduce((acc, cur, idx) => {
