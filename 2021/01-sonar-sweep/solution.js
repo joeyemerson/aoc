@@ -1,7 +1,7 @@
 fs = require('fs');
 
 const input = fs
-  .readFileSync(__dirname + '/input')
+  .readFileSync('./input')
   .toString()
   .split('\n')
   .filter(el => el !== '')
