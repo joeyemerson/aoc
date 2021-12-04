@@ -2,7 +2,11 @@ fs = require('fs');
 
 class GameBoard {
   constructor(boardData) {
-    if (!Array.isArray(boardData)) throw 'GameBoard input must be a 2d array of board data';
+    // Making a few assumptions here:
+    //  1) boardData is good input
+    //  2) Board height and width will be equal
+    //  3) All board squares will contain unique values (relative to this GameBoard instance)
+    //  4) There will not be duplicate values drawn as numbers are called from the input data
 
     this.size = boardData.length;
     this.board = {};
@@ -71,11 +75,7 @@ const p1 = (draws, boards) => {
   for (const value of draws) {
     for (const board of boards) {
       board.placeToken(value);
-
-      if (board.isWinner()) {
-        const sum = board.sumOfUnplayedValues();
-        return sum * parseInt(value);
-      }
+      if (board.isWinner()) return board.sumOfUnplayedValues() * parseInt(value);
     }
   }
 };
@@ -94,6 +94,8 @@ const p2 = (draws, boards) => {
         lastValue = value;
       }
     }
+
+    if (!boards.length) break; // all winners have been found
   }
 
   return lastWinner.sumOfUnplayedValues() * parseInt(lastValue);
@@ -101,7 +103,7 @@ const p2 = (draws, boards) => {
 
 console.log('Part 1:', p1(draws, boards));
 
-// Reset play from part 1
-boards.forEach(board => board.reset());
+// Reset all boards from part 1
+for (const board of boards) board.reset();
 
 console.log('Part 2:', p2(draws, boards));
