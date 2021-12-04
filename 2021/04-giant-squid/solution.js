@@ -40,12 +40,6 @@ class GameBoard {
     }
     return sum;
   }
-
-  reset() {
-    for (const square in this.board) this.board[square].hasToken = false;
-    this.rows.fill(0);
-    this.cols.fill(0);
-  }
 }
 
 const BOARD_SIZE = 5;
@@ -58,16 +52,19 @@ const input = fs
 
 const draws = input.shift().split(',');
 
-const boards = [];
-
-for (let i = 0; i < input.length; i += BOARD_SIZE) {
-  const boardData = input.slice(i, i + BOARD_SIZE).map(row => row.match(/\d+/g));
-  boards.push(new GameBoard(boardData));
-}
+const createBoards = (input, size) => {
+  const boards = [];
+  for (let i = 0; i < input.length; i += size) {
+    const boardData = input.slice(i, i + size).map(row => row.match(/\d+/g));
+    boards.push(new GameBoard(boardData));
+  }
+  return boards;
+};
 
 // Part 1: To guarantee victory against the giant squid, figure out which board will win first.
 // What will your final score be if you choose that board?
-const p1 = (draws, boards) => {
+const p1 = (draws, input, size) => {
+  const boards = createBoards(input, size);
   for (const value of draws) {
     for (const board of boards) {
       board.placeToken(value);
@@ -77,7 +74,8 @@ const p1 = (draws, boards) => {
 };
 
 // Part 2: Figure out which board will win last. Once it wins, what would its final score be?
-const p2 = (draws, boards) => {
+const p2 = (draws, input, size) => {
+  const boards = createBoards(input, size);
   let lastWinner = null;
   let lastValue = -1;
 
@@ -96,9 +94,5 @@ const p2 = (draws, boards) => {
   return lastWinner.sumOfUnplayedValues() * parseInt(lastValue);
 };
 
-console.log('Part 1:', p1(draws, boards));
-
-// Reset all boards from part 1
-for (const board of boards) board.reset();
-
-console.log('Part 2:', p2(draws, boards));
+console.log('Part 1:', p1(draws, input, BOARD_SIZE));
+console.log('Part 2:', p2(draws, input, BOARD_SIZE));
