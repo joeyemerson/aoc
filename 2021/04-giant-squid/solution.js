@@ -36,19 +36,15 @@ class GameBoard {
   sumOfUnplayedValues() {
     let sum = 0;
     for (const square in this.board) {
-      if (!this.board[square].hasToken) {
-        sum += parseInt(square);
-      }
+      if (!this.board[square].hasToken) sum += parseInt(square);
     }
     return sum;
   }
 
   reset() {
-    for (const square in this.board) {
-      this.board[square].hasToken = false;
-      this.rows.fill(0);
-      this.cols.fill(0);
-    }
+    for (const square in this.board) this.board[square].hasToken = false;
+    this.rows.fill(0);
+    this.cols.fill(0);
   }
 }
 
@@ -94,7 +90,6 @@ const p2 = (draws, boards) => {
         lastValue = value;
       }
     }
-
     if (!boards.length) break; // all winners have been found
   }
 
