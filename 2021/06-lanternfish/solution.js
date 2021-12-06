@@ -9,23 +9,16 @@ const input = fs
 const fish = input[0].split(',').map(Number);
 
 const simulate = (fish, days) => {
-  let states = Array(9).fill(0);
+  const states = Array(9).fill(0);
 
   for (const f of fish) ++states[f];
 
-  while (days--) {
-    const nextStates = Array(9).fill(0);
-    nextStates[8] = states[0];
-    nextStates[6] = states[0];
-
-    for (let i = 1; i < 9; ++i) {
-      nextStates[i - 1] += states[i];
-    }
-
-    states = nextStates;
+  for (let day = 0; day < days; ++day) {
+    states.push(states[day]);
+    states[day + 7] += states[day];
   }
 
-  return states.reduce((acc, cur) => acc + cur, 0);
+  return states.slice(-9).reduce((acc, cur) => acc + cur, 0);
 };
 
 // Part 1: Find a way to simulate lanternfish. How many lanternfish would there be after 80 days?
