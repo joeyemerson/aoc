@@ -14,6 +14,8 @@ const getMeans = nums => {
   return [loMean, hiMean];
 };
 
+// Part 1: Determine the horizontal position that the crabs can align to using the least fuel possible
+// How much fuel must they spend to align to that position?
 const p1 = nums => {
   const median = getMedian(nums);
   let cost = 0;
@@ -25,6 +27,8 @@ const p1 = nums => {
   return cost;
 };
 
+// Part 2: Determine the horizontal position that the crabs can align to using the least fuel possible
+// so they can make you an escape route! How much fuel must they spend to align to that position?
 const p2 = nums => {
   const [loMean, hiMean] = getMeans(nums);
   let loMeanCost = 0;
@@ -40,10 +44,5 @@ const p2 = nums => {
   return Math.min(loMeanCost, hiMeanCost);
 };
 
-// Part 1: Determine the horizontal position that the crabs can align to using the least fuel possible
-// How much fuel must they spend to align to that position?
 console.log('Part 1:', p1(input));
-
-// Part 2: Determine the horizontal position that the crabs can align to using the least fuel possible
-// so they can make you an escape route! How much fuel must they spend to align to that position?
 console.log('Part 2:', p2(input));
