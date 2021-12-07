@@ -46,7 +46,12 @@ const getIntersections = (lineData, ignoreDiagonal) => {
 };
 
 // Part 1: Consider only horizontal and vertical lines. At how many points do at least two lines overlap?
+console.time('Part 1 Time');
 console.log('Part 1:', getIntersections(lineData, true));
+console.timeEnd('Part 1 Time');
+console.log();
 
 // Part 2: Consider all of the lines. At how many points do at least two lines overlap?
+console.time('Part 2 Time');
 console.log('Part 2:', getIntersections(lineData, false));
+console.timeEnd('Part 2 Time');

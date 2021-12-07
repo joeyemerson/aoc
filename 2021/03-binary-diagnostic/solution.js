@@ -79,5 +79,11 @@ const p2 = arr => {
   return oxygenGeneratorRating * CO2ScrubberRating;
 };
 
-console.log(p1(input));
-console.log(p2(input));
+console.time('Part 1 Time');
+console.log('Part 1:', p1(input));
+console.timeEnd('Part 1 Time');
+console.log();
+
+console.time('Part 2 Time');
+console.log('Part 2:', p2(input));
+console.timeEnd('Part 2 Time');

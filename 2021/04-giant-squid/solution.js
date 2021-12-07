@@ -94,5 +94,11 @@ const p2 = (draws, input, size) => {
   return lastWinner.sumOfUnplayedValues() * parseInt(lastValue);
 };
 
+console.time('Part 1 Time');
 console.log('Part 1:', p1(draws, input, BOARD_SIZE));
+console.timeEnd('Part 1 Time');
+console.log();
+
+console.time('Part 2 Time');
 console.log('Part 2:', p2(draws, input, BOARD_SIZE));
+console.timeEnd('Part 2 Time');
