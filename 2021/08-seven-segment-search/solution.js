@@ -7,50 +7,67 @@ const input = fs
   .filter(line => line !== '')
   .map(line => line.split(' | '));
 
-const permutations = (function permute(str, perm = '', arr = []) {
-  if (!str) {
-    arr.push(perm);
-    return arr;
+const digitSegments = ['abcefg', 'cf', 'acdeg', 'acdfg', 'bcdf', 'abdfg', 'abdefg', 'acf', 'abcdefg', 'abcdfg'];
+
+const getSegmentMap = signalPatterns => {
+  const byLen = [, , [], [], [], [], [], []];
+  const map = { a: '', b: '', c: '', d: '', e: '', f: '', g: '' };
+
+  for (const pattern of signalPatterns.split(' ')) {
+    byLen[pattern.length].push(pattern);
   }
 
-  for (let i = 0; i < str.length; ++i) {
-    const strWithRemovedChar = str.slice(0, i) + str.slice(i + 1);
-    permute(strWithRemovedChar, perm + str[i], arr);
-  }
+  let cf = byLen[2][0];
+  let bd = [...byLen[4][0]].filter(char => !cf.includes(char)).join('');
 
-  return arr;
-})('abcdefg');
+  // get a
+  const a = [...byLen[3][0]].filter(char => !cf.includes(char))[0];
+  map[a] = 'a';
 
-const segmentMap = ['012456', '25', '02346', '02356', '1235', '01356', '013456', '025', '0123456', '012356'];
+  // get cf and bd
+  for (const len6 of byLen[6]) {
+    let sameCF = '';
+    let sameBD = '';
 
-// Take in list of signalPatterns defining each digit of a seven segment display and return a map
-// of the form { sorted pattern string : digit represented on display }
-const getPatternMap = signalPatterns => {
-  signalPatterns = signalPatterns.split(' ');
-
-  for (const perm of permutations) {
-    let isValid = true;
-
-    for (const pattern of signalPatterns) {
-      const candidate = [...pattern.replace(/[abcdefg]/g, m => perm.indexOf(m))].sort().join('');
-
-      if (!segmentMap.some(segment => candidate === segment)) {
-        isValid = false;
-        break;
-      }
+    for (const char of len6) {
+      if (cf.includes(char)) sameCF += char;
+      if (bd.includes(char)) sameBD += char;
     }
 
-    if (isValid) {
-      const map = {};
+    if (sameCF.length === 1) {
+      const f = sameCF;
+      const c = sameCF === cf[0] ? cf[1] : cf[0];
+      map[f] = 'f';
+      map[c] = 'c';
+    }
 
-      for (const idx in segmentMap) {
-        const key = [...segmentMap[idx].replace(/\d/g, m => perm[m])].sort().join('');
-        map[key] = idx.toString();
-      }
-
-      return map;
+    if (sameBD.length === 1) {
+      const b = sameBD;
+      const d = sameBD === bd[0] ? bd[1] : bd[0];
+      map[b] = 'b';
+      map[d] = 'd';
     }
   }
+
+  // get g
+  for (const len6 of byLen[6]) {
+    let unfound = '';
+
+    for (const char of len6) {
+      if (!map[char]) unfound += char;
+    }
+
+    if (unfound.length === 1) {
+      map[unfound] = 'g';
+      break;
+    }
+  }
+
+  // get e
+  const e = [...byLen[7][0]].filter(char => !map[char])[0];
+  map[e] = 'e';
+
+  return map;
 };
 
 // Part 1: In the output values, how many times do digits 1, 4, 7, or 8 appear?
@@ -60,7 +77,7 @@ const p1 = input => {
 
   for (const [_, outputValues] of input) {
     for (const value of outputValues.split(' ')) {
-      if (targetLengths.includes(value.length)) ++result;
+      result += targetLengths.includes(value.length);
     }
   }
 
@@ -73,12 +90,13 @@ const p2 = input => {
   let result = 0;
 
   for (const [signalPatterns, outputValues] of input) {
-    const patternMap = getPatternMap(signalPatterns);
+    const segmentMap = getSegmentMap(signalPatterns);
     let digitString = '';
 
-    for (const value of outputValues.split(' ')) {
-      const sortedValue = [...value].sort().join('');
-      digitString += patternMap[sortedValue];
+    for (const mismatchedSegments of outputValues.split(' ')) {
+      const segments = mismatchedSegments.replace(/./g, m => segmentMap[m]);
+      const sortedSegments = [...segments].sort().join('');
+      digitString += digitSegments.indexOf(sortedSegments).toString();
     }
 
     result += parseInt(digitString);
