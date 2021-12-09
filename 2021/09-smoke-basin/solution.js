@@ -62,7 +62,7 @@ const p2 = grid => {
         for (let i = 0; i < 4; ++i) {
           const rr = r + rowOffsets[i];
           const cc = c + colOffsets[i];
-          if (pointInGrid(rr, cc, height, width) && !visited[rr][cc]) queue.push([rr, cc]);
+          if (pointInGrid(rr, cc, height, width)) queue.push([rr, cc]);
         }
       }
 
