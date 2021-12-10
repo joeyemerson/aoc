@@ -1,4 +1,4 @@
-fs = require('fs');
+const fs = require('fs');
 
 const BINARY_LENGTH = 12;
 
