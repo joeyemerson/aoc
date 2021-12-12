@@ -6,7 +6,7 @@ const input = fs
   .split('\n')
   .filter(line => line !== '');
 
-const buildGraph = input => {
+const buildUndirectedGraph = input => {
   const graph = {};
 
   for (const line of input) {
@@ -24,7 +24,7 @@ const isSmallCave = cave => /[a-z]/.test(cave);
 
 // Part 1: How many paths through this cave system are there that visit small caves at most once?
 const p1 = input => {
-  const caves = buildGraph(input);
+  const caves = buildUndirectedGraph(input);
 
   const dfs = (cave, visited = new Set()) => {
     if (cave === 'end') return 1;
@@ -46,7 +46,7 @@ const p1 = input => {
 // Part 2: After reviewing the available paths, you realize you might have time to visit a single small cave twice.
 // Given these new rules, how many paths through this cave system are there?
 const p2 = input => {
-  const caves = buildGraph(input);
+  const caves = buildUndirectedGraph(input);
 
   const dfs = (cave, visitedSmallCaves = '', doubleSmallFlag = false) => {
     if (cave === 'end') return 1;
