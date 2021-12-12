@@ -29,14 +29,17 @@ const p1 = input => {
   const dfs = (cave, visited = new Set()) => {
     if (cave === 'end') return 1;
     if (visited.has(cave) && isSmallCave(cave)) return 0;
-    visited.add(cave);
+
     let result = 0;
+
+    visited.add(cave);
 
     for (const nextCave of caves[cave]) {
       result += dfs(nextCave, visited);
     }
 
     visited.delete(cave);
+
     return result;
   };
 
@@ -48,25 +51,25 @@ const p1 = input => {
 const p2 = input => {
   const caves = buildUndirectedGraph(input);
 
-  const dfs = (cave, visitedSmallCaves = '', doubleSmallFlag = false) => {
+  const dfs = (cave, visited = {}, doubleSmallFlag = false) => {
     if (cave === 'end') return 1;
 
-    if (isSmallCave(cave)) {
-      if (visitedSmallCaves.includes(cave)) {
-        if (doubleSmallFlag) return 0;
-        else doubleSmallFlag = true;
-      } else {
-        visitedSmallCaves += cave + ' ';
-      }
+    if (visited[cave] && isSmallCave(cave)) {
+      if (doubleSmallFlag) return 0;
+      else doubleSmallFlag = true;
     }
 
     let result = 0;
 
+    visited[cave] = visited[cave] + 1 || 1;
+
     for (const nextCave of caves[cave]) {
       if (nextCave !== 'start') {
-        result += dfs(nextCave, visitedSmallCaves, doubleSmallFlag);
+        result += dfs(nextCave, visited, doubleSmallFlag);
       }
     }
+
+    --visited[cave];
 
     return result;
   };
