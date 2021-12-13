@@ -21,19 +21,19 @@ const foldPoints = (points, fold) => {
 
   for (const point of points) {
     let [x, y] = point.split(',').map(Number);
-    let flipped = false;
+    let folded = false;
 
     if (axis === 'x' && x > value) {
       x = value - (x - value);
-      flipped = true;
+      folded = true;
     }
 
     if (axis === 'y' && y > value) {
       y = value - (y - value);
-      flipped = true;
+      folded = true;
     }
 
-    if (flipped) {
+    if (folded) {
       points.delete(point);
       points.add(x + ',' + y);
     }
