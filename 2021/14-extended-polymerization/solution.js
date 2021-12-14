@@ -15,10 +15,10 @@ const insertionRules = input.reduce((acc, cur) => {
 }, {});
 
 const getPolymer = (template, rules, processIterations) => {
-  const singleCounter = { [template[0]]: 1 }; // initialize with first char since we are iterating over pairs
+  const singleCounter = {};
   const pairCounter = {};
 
-  for (let i = 1; i < template.length; ++i) {
+  for (let i = 0; i < template.length; ++i) {
     const singleKey = template[i];
     const pairKey = template[i - 1] + template[i];
     singleCounter[singleKey] = singleCounter[singleKey] + 1 || 1;
@@ -35,13 +35,13 @@ const getPolymer = (template, rules, processIterations) => {
         // each instance of pair AB get replaced by one each of pairs AC and CB
         // where AB is the original pair and C is the insertion char
         const insertionValue = rules[pair];
-        const leftKey = pair[0] + insertionValue;
-        const rightKey = insertionValue + pair[1];
+        const newLeftPair = pair[0] + insertionValue;
+        const newRightPair = insertionValue + pair[1];
         const pairCount = pairCounter[pair];
         pairCounter[pair] = 0;
         singleCounter[insertionValue] = singleCounter[insertionValue] + pairCount || pairCount;
-        addedPairs[leftKey] = addedPairs[leftKey] + pairCount || pairCount;
-        addedPairs[rightKey] = addedPairs[rightKey] + pairCount || pairCount;
+        addedPairs[newLeftPair] = addedPairs[newLeftPair] + pairCount || pairCount;
+        addedPairs[newRightPair] = addedPairs[newRightPair] + pairCount || pairCount;
       }
     }
 
