@@ -16,7 +16,7 @@ const insertionRules = input.reduce((acc, cur) => {
 
 const getPolymer = (template, rules, processIterations) => {
   const singleCounter = {};
-  const pairCounter = {};
+  let pairCounter = {}; // This will be reassigned after every iteration to reflect new pairs
 
   for (let i = 0; i < template.length; ++i) {
     const singleKey = template[i];
@@ -26,28 +26,30 @@ const getPolymer = (template, rules, processIterations) => {
   }
 
   for (let i = 0; i < processIterations; ++i) {
-    // all insertions happen simultaneously, so we store the new pairs in this temporary map and add
-    // them back to the main pairCounter after all insertions have been made for this iteration
-    const addedPairs = {};
+    // All insertions happen simultaneously, so we store the new pairs in this temporary map and change
+    // pairCounter to point to the new map after all insertions have been made for this iteration.
+    const newPairCounter = {};
 
     for (const pair in rules) {
+      // If a pair isn't in the rule set, we don't need to keep it, which is why there is no else block below the if.
+      // Alternatively, you could iterate through all the current pairs and check if that pair is in the rules.
+      // Since I knew the rules length was fixed, I chose to loop through them since the number of pairs will
+      // fluctuate on each iteration, and potentially be up to twice the size of the rules length.
+
       if (pairCounter[pair]) {
-        // each instance of pair AB get replaced by one each of pairs AC and CB
-        // where AB is the original pair and C is the insertion char
+        // Each instance of pair AB gets replaced by one each of pairs AC and CB
+        // where AB is the original pair and C is the insertion char.
         const insertionValue = rules[pair];
         const newLeftPair = pair[0] + insertionValue;
         const newRightPair = insertionValue + pair[1];
         const pairCount = pairCounter[pair];
-        pairCounter[pair] = 0;
         singleCounter[insertionValue] = singleCounter[insertionValue] + pairCount || pairCount;
-        addedPairs[newLeftPair] = addedPairs[newLeftPair] + pairCount || pairCount;
-        addedPairs[newRightPair] = addedPairs[newRightPair] + pairCount || pairCount;
+        newPairCounter[newLeftPair] = newPairCounter[newLeftPair] + pairCount || pairCount;
+        newPairCounter[newRightPair] = newPairCounter[newRightPair] + pairCount || pairCount;
       }
     }
 
-    for (const pair in addedPairs) {
-      pairCounter[pair] = pairCounter[pair] + addedPairs[pair] || addedPairs[pair];
-    }
+    pairCounter = newPairCounter;
   }
 
   let minCount = Infinity;
