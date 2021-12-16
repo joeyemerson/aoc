@@ -45,11 +45,11 @@ const evaluate = (binary, part) => {
   while (idx < binary.length) {
     const top = stack[stack.length - 1];
 
-    if (!top || idx < top.end || top.subpackets > 0) {
+    if (!top || idx < top.end || top.subpacketCount > 0) {
       const [version, id] = getHeader(idx);
       idx += 6;
       parts[0] += version;
-      if (top) --top.subpackets;
+      if (top) --top.subpacketCount;
 
       if (id === 4) {
         const chunks = getValueChunks(idx);
@@ -60,12 +60,12 @@ const evaluate = (binary, part) => {
         const lengthTypeId = binary[idx++];
         const offset = lengthTypeId === '0' ? 15 : 11;
         const lengthValue = parseInt(binary.slice(idx, idx + offset).join(''), 2);
-        const subpacketLength = lengthTypeId === '0' ? lengthValue : 0;
-        const subpackets = lengthTypeId === '1' ? lengthValue : 0;
+        const subpacketsLength = lengthTypeId === '0' ? lengthValue : 0;
+        const subpacketCount = lengthTypeId === '1' ? lengthValue : 0;
         idx += offset;
         stack.push({
-          end: idx + subpacketLength,
-          subpackets: subpackets,
+          end: idx + subpacketsLength,
+          subpacketCount: subpacketCount,
           id: id,
           accumulator: seedValues[id],
         });
@@ -77,6 +77,7 @@ const evaluate = (binary, part) => {
         newTop.accumulator = expressionFuncs[newTop.id](newTop.accumulator, poppedAccumulator);
       } else {
         parts[1] = poppedAccumulator;
+        break;
       }
     }
   }
