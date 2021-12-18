@@ -104,39 +104,43 @@ const split = node => {
   node.right.parent = node;
 };
 
-const magnitude = node => {
+const reduce = root => {
+  let madeChange = true;
+
+  while (madeChange) {
+    madeChange = false;
+    const explodeNode = getExplodeNode(root);
+
+    if (explodeNode) {
+      explode(explodeNode);
+      madeChange = true;
+    } else {
+      const splitNode = getSplitNode(root);
+      if (splitNode) {
+        split(splitNode);
+        madeChange = true;
+      }
+    }
+  }
+};
+
+const calculateMagnitude = node => {
   if (!node) return 0;
   if (node.val !== -1) return node.val;
-  return 3 * magnitude(node.left) + 2 * magnitude(node.right);
+  return 3 * calculateMagnitude(node.left) + 2 * calculateMagnitude(node.right);
 };
 
 // Part 1: Add up all of the snailfish numbers from the homework assignment in the order they appear.
 // What is the magnitude of the final sum?
 const p1 = input => {
-  let root = constructTree(input.shift());
+  let root = constructTree(input[0]);
 
-  for (const line of input) {
-    root = mergeTrees(root, constructTree(line, null));
-    let madeChange;
-
-    do {
-      madeChange = false;
-      const explodeNode = getExplodeNode(root);
-
-      if (explodeNode) {
-        explode(explodeNode);
-        madeChange = true;
-      } else {
-        const splitNode = getSplitNode(root);
-        if (splitNode) {
-          split(splitNode);
-          madeChange = true;
-        }
-      }
-    } while (madeChange);
+  for (let i = 0; i < input.length; ++i) {
+    root = mergeTrees(root, constructTree(input[i], null));
+    reduce(root);
   }
 
-  return magnitude(root);
+  return calculateMagnitude(root);
 };
 
 // Part 2: What is the largest magnitude of any sum of two different snailfish numbers from the homework assignment?
@@ -146,25 +150,8 @@ const p2 = input => {
   for (let i = 0; i < input.length; ++i) {
     for (let j = i + 1; j < input.length; ++j) {
       const root = mergeTrees(constructTree(input[i], null), constructTree(input[j], null));
-      let madeChange;
-
-      do {
-        madeChange = false;
-        const explodeNode = getExplodeNode(root);
-
-        if (explodeNode) {
-          explode(explodeNode);
-          madeChange = true;
-        } else {
-          const splitNode = getSplitNode(root);
-          if (splitNode) {
-            split(splitNode);
-            madeChange = true;
-          }
-        }
-      } while (madeChange);
-
-      maxMagnitude = Math.max(maxMagnitude, magnitude(root));
+      reduce(root);
+      maxMagnitude = Math.max(maxMagnitude, calculateMagnitude(root));
     }
   }
 
