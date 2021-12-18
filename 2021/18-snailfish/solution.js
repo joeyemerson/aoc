@@ -6,47 +6,35 @@ const input = fs
   .split('\n')
   .filter(line => line !== '');
 
-const TreeNode = function (val) {
+const TreeNode = function (val, parent = null) {
   this.val = val;
+  this.parent = parent;
   this.left = null;
   this.right = null;
-  this.parent = null;
 };
 
 const constructTree = (str, parent) => {
-  const root = new TreeNode(-1);
-  root.parent = parent;
-
+  const root = new TreeNode(-1, parent);
   let open = 0;
-  let leftStr = '';
-  let rightStr = '';
+  let leftStr;
+  let rightStr;
 
+  // Find the comma separating left and right parts of top level, then split
   for (let i = 0; i < str.length; ++i) {
-    if (str[i] === '[') {
-      ++open;
-      if (open > 1) leftStr += str[i];
-    } else if (str[i] === ']') {
-      --open;
-      leftStr += str[i];
-    } else if (str[i] === ',' && open === 1) {
-      rightStr = str.slice(i + 1, -1);
+    if (str[i] === '[') ++open;
+    else if (str[i] === ']') --open;
+    else if (str[i] === ',' && open === 1) {
+      leftStr = str.slice(1, i); // take everything except the first opening
+      rightStr = str.slice(i + 1, -1); // and last closing braces
       break;
-    } else leftStr += str[i];
+    }
   }
 
-  if (leftStr.length > 1) {
-    root.left = constructTree(leftStr, root);
-  } else {
-    root.left = new TreeNode(parseInt(leftStr));
-    root.left.parent = root;
-  }
+  if (leftStr.length > 1) root.left = constructTree(leftStr, root);
+  else root.left = new TreeNode(parseInt(leftStr), root);
 
-  if (rightStr.length > 1) {
-    root.right = constructTree(rightStr, root);
-  } else {
-    root.right = new TreeNode(parseInt(rightStr));
-    root.right.parent = root;
-  }
+  if (rightStr.length > 1) root.right = constructTree(rightStr, root);
+  else root.right = new TreeNode(parseInt(rightStr), root);
 
   return root;
 };
@@ -105,23 +93,23 @@ const split = node => {
 };
 
 const reduce = root => {
-  let madeChange = true;
-
-  while (madeChange) {
-    madeChange = false;
+  while (true) {
     const explodeNode = getExplodeNode(root);
-
     if (explodeNode) {
       explode(explodeNode);
-      madeChange = true;
-    } else {
-      const splitNode = getSplitNode(root);
-      if (splitNode) {
-        split(splitNode);
-        madeChange = true;
-      }
+      continue;
     }
+
+    const splitNode = getSplitNode(root);
+    if (splitNode) {
+      split(splitNode);
+      continue;
+    }
+
+    break; // no more exploding or splitting to be done!
   }
+
+  return root;
 };
 
 const calculateMagnitude = node => {
@@ -135,7 +123,7 @@ const calculateMagnitude = node => {
 const p1 = input => {
   let root = constructTree(input[0]);
 
-  for (let i = 0; i < input.length; ++i) {
+  for (let i = 1; i < input.length; ++i) {
     root = mergeTrees(root, constructTree(input[i], null));
     reduce(root);
   }
@@ -149,9 +137,10 @@ const p2 = input => {
 
   for (let i = 0; i < input.length; ++i) {
     for (let j = i + 1; j < input.length; ++j) {
-      const root = mergeTrees(constructTree(input[i], null), constructTree(input[j], null));
-      reduce(root);
-      maxMagnitude = Math.max(maxMagnitude, calculateMagnitude(root));
+      // Addition is not commutative, so we have to try adding with the terms on both sides (so to speak)
+      const rootA = mergeTrees(constructTree(input[i], null), constructTree(input[j], null));
+      const rootB = mergeTrees(constructTree(input[j], null), constructTree(input[i], null));
+      maxMagnitude = Math.max(maxMagnitude, calculateMagnitude(reduce(rootA)), calculateMagnitude(reduce(rootB)));
     }
   }
 
