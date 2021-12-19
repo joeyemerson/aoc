@@ -1,24 +1,6 @@
 const fs = require('fs');
 
-const input = fs
-  .readFileSync('./input')
-  // .readFileSync('./input-example')
-  .toString()
-  .split('\n')
-  .filter(line => line !== '');
-
-const parseScannerData = input => {
-  const scannerData = [];
-
-  for (const line of input) {
-    if (line.includes('scanner')) scannerData.push([]);
-    else scannerData[scannerData.length - 1].push(line.split(',').map(Number));
-  }
-
-  return scannerData;
-};
-
-const getOrientation = (scanner, orientation) => {
+const getScannerWithOrientation = (scanner, orientation) => {
   const direction = Math.floor(orientation / 4);
   const rotation = orientation % 4;
 
@@ -45,8 +27,7 @@ const getOrientation = (scanner, orientation) => {
   });
 };
 
-const reorientScanners = input => {
-  const scannerData = parseScannerData(input);
+const reorientScanners = scannerData => {
   const adjustedScanners = [{ position: [0, 0, 0], beacons: scannerData.shift(), isChecked: false }];
 
   while (scannerData.length) {
@@ -55,38 +36,32 @@ const reorientScanners = input => {
       if (isChecked) continue;
       adjustedScanners[i].isChecked = true;
 
-      for (let j = scannerData.length - 1; j >= 0; --j) {
-        const compareScanner = scannerData[j];
+      innerScannerLoop: for (let j = scannerData.length - 1; j >= 0; --j) {
+        const scannerToTest = scannerData[j];
 
         for (let k = 0; k < 24; ++k) {
-          const reorientedScanner = getOrientation(compareScanner, k);
+          const reorientedScanner = getScannerWithOrientation(scannerToTest, k);
           const relativeDistances = {};
-          let foundMatch = false;
 
           for (const [x, y, z] of beacons) {
             for (const [xx, yy, zz] of reorientedScanner) {
               const key = (x - xx).toString() + ' ' + (y - yy).toString() + ' ' + (z - zz).toString();
               relativeDistances[key] = relativeDistances[key] + 1 || 1;
+
+              if (relativeDistances[key] >= 12) {
+                const [offsetX, offsetY, offsetZ] = key.split(' ').map(Number);
+                scannerData.splice(j, 1);
+
+                adjustedScanners.push({
+                  position: [position[0] + offsetX, position[1] + offsetY, position[2] + offsetZ],
+                  beacons: reorientedScanner,
+                  isChecked: false,
+                });
+
+                continue innerScannerLoop;
+              }
             }
           }
-
-          for (const key in relativeDistances) {
-            if (relativeDistances[key] >= 12) {
-              const [offsetX, offsetY, offsetZ] = key.split(' ').map(Number);
-              scannerData.splice(j, 1);
-
-              adjustedScanners.push({
-                position: [position[0] + offsetX, position[1] + offsetY, position[2] + offsetZ],
-                beacons: reorientedScanner,
-                isChecked: false,
-              });
-
-              foundMatch = true;
-              break;
-            }
-          }
-
-          if (foundMatch) break;
         }
       }
     }
@@ -123,8 +98,22 @@ const p2 = scanners => {
   return maxDistance;
 };
 
+const input = fs
+  .readFileSync('./input')
+  // .readFileSync('./input-example')
+  .toString()
+  .split('\n')
+  .filter(line => line !== '');
+
+const scannerData = [];
+
+for (const line of input) {
+  if (line.includes('scanner')) scannerData.push([]);
+  else scannerData[scannerData.length - 1].push(line.split(',').map(Number));
+}
+
 console.time('Time to Reorient Scanners');
-const adjustedScanners = reorientScanners(input);
+const adjustedScanners = reorientScanners(scannerData);
 console.timeEnd('Time to Reorient Scanners');
 console.log();
 
