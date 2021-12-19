@@ -112,7 +112,7 @@ const p1 = scanners => {
 const p2 = scanners => {
   let maxDistance = 0;
 
-  const scannerPositions = scanners.map(obj => obj.position);
+  const scannerPositions = scanners.map(scanner => scanner.position);
 
   for (const [x, y, z] of scannerPositions) {
     for (const [xx, yy, zz] of scannerPositions) {
