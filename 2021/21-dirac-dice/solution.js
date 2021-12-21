@@ -65,26 +65,24 @@ const p1 = (p1Start, p2Start, boardSize, targetScore) => {
 // Part 2: Using your given starting positions, determine every possible outcome.
 // Find the player that wins in more universes; in how many universes does that player win?
 const p2 = (p1Start, p2Start, boardSize, targetScore) => {
+  // This is used to batch recursive calls for all possible ways a player can move n spaces
   const rolls = [[3, 1], [4, 3], [5, 6], [6, 7], [7, 6], [8, 3], [9, 1]]; //prettier-ignore
 
-  const go = (p1Score, p1Position, p2Score, p2Position, turn, memo) => {
+  const go = (p1Score, p1Position, p2Score, p2Position, memo) => {
     if (p1Score >= targetScore) return [1, 0];
     if (p2Score >= targetScore) return [0, 1];
 
-    const key = p1Score + ' ' + p1Position + ' ' + p2Score + ' ' + p2Position + ' ' + (turn & 1);
+    const key = p1Score + ' ' + p1Position + ' ' + p2Score + ' ' + p2Position;
 
     if (!(key in memo)) {
       let p1Wins = 0;
       let p2Wins = 0;
 
       for (const [posOffset, weight] of rolls) {
-        const newPos = turn & 1 ? (p2Position + posOffset) % boardSize : (p1Position + posOffset) % boardSize;
-
-        const [p1AddWins, p2AddWins] =
-          turn & 1
-            ? go(p1Score, p1Position, p2Score + newPos + 1, newPos, turn + 1, memo)
-            : go(p1Score + newPos + 1, newPos, p2Score, p2Position, turn + 1, memo);
-
+        // p1 is always the current player
+        const newPos = (p1Position + posOffset) % boardSize;
+        // swap players each turn
+        const [p2AddWins, p1AddWins] = go(p2Score, p2Position, p1Score + newPos + 1, newPos, memo);
         p1Wins += p1AddWins * weight;
         p2Wins += p2AddWins * weight;
       }
@@ -95,7 +93,7 @@ const p2 = (p1Start, p2Start, boardSize, targetScore) => {
     return memo[key];
   };
 
-  const [p1Wins, p2Wins] = go(0, p1Start, 0, p2Start, 0, {});
+  const [p1Wins, p2Wins] = go(0, p1Start, 0, p2Start, {});
   return Math.max(p1Wins, p2Wins);
 };
 
