@@ -51,7 +51,76 @@ const p1 = input => {
 // Part 2: Starting again with all cubes off, execute all reboot steps.
 // Afterward, considering all cubes, how many cubes are on?
 const p2 = input => {
-    return 'not done yet';
+    let cubes = [];
+    let result = 0;
+
+    for (const [inst, cube] of input) {
+        const newCubes = [];
+        for (const prevCube of cubes) {
+            if (hasOverlap(cube, prevCube)) {
+                const splitParts = split(cube, prevCube);
+                newCubes.push(...splitParts);
+            } else {
+                newCubes.push(prevCube);
+            }
+        }
+        if (inst === 'on') newCubes.push(cube);
+        cubes = newCubes;
+    }
+
+    for (const cube of cubes) {
+        result += volume(...cube[0], ...cube[1], ...cube[2]);
+    }
+
+    return result;
+};
+
+const hasOverlap = (a, b) => {
+    return (
+        b[0][0] <= a[0][1] &&
+        a[0][0] <= b[0][1] &&
+        b[1][0] <= a[1][1] &&
+        a[1][0] <= b[1][1] &&
+        b[2][0] <= a[2][1] &&
+        a[2][0] <= b[2][1]
+    );
+};
+
+const split = (a, b) => {
+    let splitCuboids = [];
+    if (a[0][0] > b[0][0]) {
+        splitCuboids.push([
+            [b[0][0], a[0][0] - 1],
+            [b[1][0], b[1][1]],
+            [b[2][0], b[2][1]],
+        ]);
+    }
+    if (a[0][1] < b[0][1]) {
+        splitCuboids.push([
+            [a[0][1] + 1, b[0][1]],
+            [b[1][0], b[1][1]],
+            [b[2][0], b[2][1]],
+        ]);
+    }
+    let middleXRange = [Math.max(b[0][0], a[0][0]), Math.min(b[0][1], a[0][1])];
+    if (a[1][0] > b[1][0]) {
+        splitCuboids.push([middleXRange, [b[1][0], a[1][0] - 1], [b[2][0], b[2][1]]]);
+    }
+    if (a[1][1] < b[1][1]) {
+        splitCuboids.push([middleXRange, [a[1][1] + 1, b[1][1]], [b[2][0], b[2][1]]]);
+    }
+    let middleYRange = [Math.max(b[1][0], a[1][0]), Math.min(b[1][1], a[1][1])];
+    if (a[2][0] > b[2][0]) {
+        splitCuboids.push([middleXRange, middleYRange, [b[2][0], a[2][0] - 1]]);
+    }
+    if (a[2][1] < b[2][1]) {
+        splitCuboids.push([middleXRange, middleYRange, [a[2][1] + 1, b[2][1]]]);
+    }
+    return splitCuboids;
+};
+
+const volume = (x0, x1, y0, y1, z0, z1) => {
+    return (x1 - x0 + 1) * (y1 - y0 + 1) * (z1 - z0 + 1);
 };
 
 console.time('Part 1 Time');
@@ -61,4 +130,3 @@ console.log();
 
 console.time('Part 2 Time');
 console.log('Part 2:', p2(input));
-console.timeEnd('Part 2 Time');
