@@ -11,41 +11,17 @@ const distance = (x1, y1, x2, y2) => {
     return Math.sqrt((x1 - x2) ** 2 + (y1 - y2) ** 2);
 };
 
-const part1 = (rawInput) => {
-    const input = parseInput(rawInput);
+// General solver for any number of knots (2 <= knotCount)
+const solve = (input, knotCount) => {
     const visited = new Set();
     visited.add('0 0');
-    let hx = 0,
-        hy = 0,
-        tx = 0,
-        ty = 0;
-    for (const [dir, steps] of input) {
-        [hx, hy] = moveHead(hx, hy, dir, steps);
-        while (distance(hx, hy, tx, ty) >= 2) {
-            if (tx !== hx) {
-                tx += hx > tx ? 1 : -1;
-            }
-            if (ty !== hy) {
-                ty += hy > ty ? 1 : -1;
-            }
-            visited.add(tx + ' ' + ty);
-        }
-    }
-    return visited.size;
-};
-
-const part2 = (rawInput) => {
-    const input = parseInput(rawInput);
-    const visited = new Set();
-    visited.add('0 0');
-    // head is 0, tail is 9
-    const knots = Array.from(Array(10), () => [0, 0]);
+    const knots = Array.from(Array(knotCount), () => [0, 0]);
     for (const [dir, steps] of input) {
         const [newHx, newHy] = moveHead(...knots[0], dir, steps);
         while (knots[0][0] !== newHx || knots[0][1] !== newHy) {
             knots[0][0] += knots[0][0] < newHx ? 1 : knots[0][0] > newHx ? -1 : 0;
             knots[0][1] += knots[0][1] < newHy ? 1 : knots[0][1] > newHy ? -1 : 0;
-            for (let i = 1; i < 10; ++i) {
+            for (let i = 1; i < knotCount; ++i) {
                 if (distance(...knots[i], ...knots[i - 1]) >= 2) {
                     if (knots[i][0] !== knots[i - 1][0]) {
                         knots[i][0] += knots[i - 1][0] > knots[i][0] ? 1 : -1;
@@ -53,12 +29,22 @@ const part2 = (rawInput) => {
                     if (knots[i][1] !== knots[i - 1][1]) {
                         knots[i][1] += knots[i - 1][1] > knots[i][1] ? 1 : -1;
                     }
-                    if (i === 9) visited.add(knots[i].join(' '));
+                    if (i === knotCount - 1) visited.add(knots[i].join(' '));
                 }
             }
         }
     }
     return visited.size;
+};
+
+const part1 = (rawInput) => {
+    const input = parseInput(rawInput);
+    return solve(input, 2);
+};
+
+const part2 = (rawInput) => {
+    const input = parseInput(rawInput);
+    return solve(input, 10);
 };
 
 run({
