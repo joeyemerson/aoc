@@ -28,32 +28,7 @@ const parseInput = (rawInput) => {
     return monkeys;
 };
 
-const part1 = (rawInput) => {
-    const monkeys = parseInput(rawInput);
-    const rounds = 20;
-
-    for (let i = 0; i < rounds; ++i) {
-        for (const m of monkeys) {
-            for (const item of m.items) {
-                const aVal = m.aVal === 'old' ? item : m.aVal;
-                const bVal = m.bVal === 'old' ? item : m.bVal;
-                const newItem = Math.floor(eval(aVal + m.op + bVal) / 3);
-                if (newItem % m.testVal === 0) monkeys[m.trueIdx].items.push(newItem);
-                else monkeys[m.falseIdx].items.push(newItem);
-            }
-            m.itemsHandled += m.items.length;
-            m.items = [];
-        }
-    }
-    monkeys.sort((a, b) => b.itemsHandled - a.itemsHandled);
-
-    return monkeys[0].itemsHandled * monkeys[1].itemsHandled;
-};
-
-const part2 = (rawInput) => {
-    const monkeys = parseInput(rawInput);
-    const rounds = 10000;
-
+const solve = (monkeys, rounds, divideFlag) => {
     const gcd = (a, b) => (!b ? a : gcd(b, a % b));
     const lcm = (a, b) => (a * b) / gcd(a, b);
 
@@ -64,7 +39,9 @@ const part2 = (rawInput) => {
             for (const item of m.items) {
                 const aVal = m.aVal === 'old' ? item : m.aVal;
                 const bVal = m.bVal === 'old' ? item : m.bVal;
-                const newItem = eval(aVal + m.op + bVal) % mod;
+                let newItem = eval(aVal + m.op + bVal);
+                if (divideFlag) newItem = Math.floor(newItem / 3);
+                newItem %= mod;
                 if (newItem % m.testVal === 0) monkeys[m.trueIdx].items.push(newItem);
                 else monkeys[m.falseIdx].items.push(newItem);
             }
@@ -76,6 +53,16 @@ const part2 = (rawInput) => {
     monkeys.sort((a, b) => b.itemsHandled - a.itemsHandled);
 
     return monkeys[0].itemsHandled * monkeys[1].itemsHandled;
+};
+
+const part1 = (rawInput) => {
+    const monkeys = parseInput(rawInput);
+    return solve(monkeys, 20, true);
+};
+
+const part2 = (rawInput) => {
+    const monkeys = parseInput(rawInput);
+    return solve(monkeys, 10000, false);
 };
 
 const testInput = `Monkey 0:
