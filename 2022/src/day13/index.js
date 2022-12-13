@@ -36,11 +36,13 @@ const part1 = (rawInput) => {
 
 const part2 = (rawInput) => {
     const input = parseInput(rawInput);
-    const packets = [];
+    const packets = [
+        { arr: [[2]], isDivider: true },
+        { arr: [[6]], isDivider: true },
+    ];
     for (const [a, b] of input) {
         packets.push({ arr: a }, { arr: b });
     }
-    packets.push({ arr: [[2]], isDivider: true }, { arr: [[6]], isDivider: true });
     packets.sort((a, b) => (evaluate(a.arr, b.arr) ? -1 : 1));
     let result = 1;
     for (let i = 0; i < packets.length; ++i) {
