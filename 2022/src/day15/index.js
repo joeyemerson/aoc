@@ -117,7 +117,7 @@ console.log('Target and boundary values are different');
 console.log('between sample input and full input. These');
 console.log('can be changed by commenting/uncommenting');
 console.log('rows in the part1 and part2 functions.');
-console.log();
+console.log;
 
 run({
     part1: {
