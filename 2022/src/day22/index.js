@@ -89,7 +89,7 @@ const part1 = (rawInput) => {
     return (r + 1) * 1000 + (c + 1) * 4 + d;
 };
 
-// for sample input
+// for test input
 const getFaces = (map, faceHeight, faceWidth) => {
     const front = map.slice(0, faceHeight).map((row) => row.slice(faceWidth * 2, faceWidth * 3));
     const back = map.slice(faceHeight * 2).map((row) => row.slice(faceWidth * 2, faceWidth * 3));
@@ -118,7 +118,7 @@ const getFaces2 = (map, faceHeight, faceWidth) => {
     return { front, back, left, right, top, bottom };
 };
 
-// for sample input
+// for test input
 const getStateTransitionMap = (h, w, faces) => {
     const map = Array.from(Array(h), () => {
         return Array.from(Array(w), () => {
