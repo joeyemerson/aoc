@@ -1,0 +1,25 @@
+{
+  "name": "aoc2025",
+  "version": "1.0.0",
+  "description": "Advent of Code 2025 - solutions",
+  "type": "module",
+  "scripts": {
+    "start": "aocrunner day",
+    "format": "prettier -w src",
+    "update:readme": "aocrunner update:readme"
+  },
+  "keywords": [
+    "aoc"
+  ],
+  "author": "joeyemerson",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/node": "^16.11.6",
+    "aocrunner": "^1.10.0",
+    "prettier": "^2.8.0"
+  },
+  "dependencies": {},
+  "engines": {
+    "node": ">=16.13.0"
+  }
+}
