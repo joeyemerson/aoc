@@ -1,8 +1,27 @@
 import run from "aocrunner";
 
-const parseInput = (rawInput) => {
-    return rawInput.split("\n").map((row) => row.split(",").map(Number));
-};
+class UnionFind {
+    constructor(size) {
+        this.size = size;
+        this.uf = Array.from(Array(this.size), (_, i) => i);
+    }
+    find(a) {
+        return a !== this.uf[a] ? (this.uf[a] = this.find(this.uf[a])) : a;
+    }
+    union(a, b) {
+        return (this.uf[this.find(a)] = this.find(b));
+    }
+    countUnique() {
+        return new Set(this.uf.map((x) => this.find(x))).size;
+    }
+    getGroupSizes() {
+        return this.uf.reduce((acc, cur) => {
+            const group = this.find(cur);
+            acc.set(group, (acc.get(group) || 0) + 1);
+            return acc;
+        }, new Map());
+    }
+}
 
 const getDistance = (p1, p2) => {
     return Math.sqrt(
@@ -10,8 +29,10 @@ const getDistance = (p1, p2) => {
     );
 };
 
-const part1 = (rawInput) => {
-    const points = parseInput(rawInput);
+const parseInput = (rawInput) => {
+    const points = rawInput
+        .split("\n")
+        .map((row) => row.split(",").map(Number));
     const pairs = [];
     for (let i = 0; i < points.length; ++i) {
         for (let j = i + 1; j < points.length; ++j) {
@@ -19,42 +40,29 @@ const part1 = (rawInput) => {
             pairs.push([dist, i, j]);
         }
     }
-    const uf = Array.from(Array(points.length), (_, i) => i);
-    const find = (a) => (a !== uf[a] ? (uf[a] = find(uf[a])) : a);
-    const union = (a, b) => (uf[find(a)] = find(b));
-    let maxConnections = points.length > 20 ? 1000 : 10;
     pairs.sort((a, b) => a[0] - b[0]);
+    return [points, pairs];
+};
+
+const part1 = (rawInput) => {
+    const [points, pairs] = parseInput(rawInput);
+    const uf = new UnionFind(points.length);
+    let maxConnections = points.length > 20 ? 1000 : 10;
     for (let i = 0; i < maxConnections; ++i) {
-        const [dist, idx1, idx2] = pairs[i];
-        union(idx1, idx2);
+        const [_, idx1, idx2] = pairs[i];
+        uf.union(idx1, idx2);
     }
-    const counts = new Map();
-    uf.forEach((val) => {
-        const circuit = find(val);
-        counts.set(circuit, (counts.get(circuit) || 0) + 1);
-    });
-    const threeLargest = [...counts.values()].sort((a, b) => b - a);
-    threeLargest.length = 3;
-    return threeLargest.reduce((acc, cur) => acc * cur, 1).toString();
+    const groupSizeMap = uf.getGroupSizes();
+    const sizes = [...groupSizeMap.values()].sort((a, b) => b - a);
+    return (sizes[0] * sizes[1] * sizes[2]).toString();
 };
 
 const part2 = (rawInput) => {
-    const points = parseInput(rawInput);
-    const pairs = [];
-    for (let i = 0; i < points.length; ++i) {
-        for (let j = i + 1; j < points.length; ++j) {
-            const dist = getDistance(points[i], points[j]);
-            pairs.push([dist, i, j]);
-        }
-    }
-    const uf = Array.from(Array(points.length), (_, i) => i);
-    const find = (a) => (a !== uf[a] ? (uf[a] = find(uf[a])) : a);
-    const union = (a, b) => (uf[find(a)] = find(b));
-    pairs.sort((a, b) => a[0] - b[0]);
-    for (let i = 0; i < pairs.length; ++i) {
-        const [_, idx1, idx2] = pairs[i];
-        union(idx1, idx2);
-        if (new Set(uf.map((val) => find(val))).size === 1) {
+    const [points, pairs] = parseInput(rawInput);
+    const uf = new UnionFind(points.length);
+    for (const [_, idx1, idx2] of pairs) {
+        uf.union(idx1, idx2);
+        if (uf.countUnique() === 1) {
             return (points[idx1][0] * points[idx2][0]).toString();
         }
     }
