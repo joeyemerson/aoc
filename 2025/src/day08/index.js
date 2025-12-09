@@ -4,22 +4,21 @@ class UnionFind {
     constructor(size) {
         this.size = size;
         this.uf = Array.from(Array(this.size), (_, i) => i);
+        this.sizes = new Map(this.uf.map((x) => [x, 1]));
     }
     find(a) {
         return a !== this.uf[a] ? (this.uf[a] = this.find(this.uf[a])) : a;
     }
     union(a, b) {
-        return (this.uf[this.find(a)] = this.find(b));
-    }
-    countUnique() {
-        return new Set(this.uf.map((x) => this.find(x))).size;
-    }
-    getGroupSizes() {
-        return this.uf.reduce((acc, cur) => {
-            const group = this.find(cur);
-            acc.set(group, (acc.get(group) || 0) + 1);
-            return acc;
-        }, new Map());
+        let bigRoot = this.find(a);
+        let smallRoot = this.find(b);
+        if (bigRoot === smallRoot) return;
+        if (this.sizes.get(bigRoot) < this.sizes.get(smallRoot)) {
+            [bigRoot, smallRoot] = [smallRoot, bigRoot];
+        }
+        this.uf[smallRoot] = bigRoot;
+        this.sizes.set(bigRoot, this.sizes.get(bigRoot) + this.sizes.get(smallRoot)); //prettier-ignore
+        this.sizes.delete(smallRoot);
     }
 }
 
@@ -52,8 +51,7 @@ const part1 = (rawInput) => {
         const [_, idx1, idx2] = pairs[i];
         uf.union(idx1, idx2);
     }
-    const groupSizeMap = uf.getGroupSizes();
-    const sizes = [...groupSizeMap.values()].sort((a, b) => b - a);
+    const sizes = [...uf.sizes.values()].sort((a, b) => b - a);
     return (sizes[0] * sizes[1] * sizes[2]).toString();
 };
 
@@ -62,7 +60,7 @@ const part2 = (rawInput) => {
     const uf = new UnionFind(points.length);
     for (const [_, idx1, idx2] of pairs) {
         uf.union(idx1, idx2);
-        if (uf.countUnique() === 1) {
+        if (uf.sizes.size === 1) {
             return (points[idx1][0] * points[idx2][0]).toString();
         }
     }
