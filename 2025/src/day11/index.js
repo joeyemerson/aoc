@@ -1,5 +1,4 @@
 import run from "aocrunner";
-import path from "path";
 
 const parseInput = (rawInput) => {
     const graph = new Map();
@@ -18,7 +17,7 @@ const part1 = (rawInput) => {
     const seen = new Set();
     const curPath = [];
     let uniquePaths = 0;
-    const explore = (cur) => {
+    const findAllPaths = (cur) => {
         if (cur === "out") {
             ++uniquePaths;
             return;
@@ -28,11 +27,11 @@ const part1 = (rawInput) => {
         seen.add(pathStr);
         for (const next of graph.get(cur)) {
             curPath.push(next);
-            explore(next);
+            findAllPaths(next);
             curPath.pop();
         }
     };
-    explore("you");
+    findAllPaths("you");
     return uniquePaths.toString();
 };
 
